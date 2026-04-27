@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="fade-in mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="fw-bold"><i class="fa-solid fa-shield-halved text-primary-brand"></i> Platform Oversight & Security</h2>
+        <a href="/admin" class="btn btn-outline-danger btn-sm" target="_blank">Access Django Admin</a>
+    </div>
+</div>
+
+<div class="row fade-in" style="transition-delay: 0.1s;">
+    <!-- Stats Cards -->
+    <div class="col-md-3 mb-4 text-center">
+        <div class="glass-card p-4 hover-3d tilt-effect">
+            <div class="hover-3d-inner">
+                <h1 class="display-4 fw-bold text-primary">{{ students.count }}</h1>
+                <p class="text-muted mb-0">Total Students</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4 text-center">
+        <div class="glass-card p-4 hover-3d tilt-effect">
+            <div class="hover-3d-inner">
+                <h1 class="display-4 fw-bold text-primary">{{ alumnis.count }}</h1>
+                <p class="text-muted mb-0">Total Alumni</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4 text-center">
+        <div class="glass-card p-4 hover-3d tilt-effect">
+            <div class="hover-3d-inner">
+                <h1 class="display-4 fw-bold text-primary">{{ posts.count }}</h1>
+                <p class="text-muted mb-0">Total Posts</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4 text-center">
+        <div class="glass-card p-4 hover-3d tilt-effect">
+            <div class="hover-3d-inner">
+                <h1 class="display-4 fw-bold text-primary">{{ events.count }}</h1>
+                <p class="text-muted mb-0">Total Events</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row fade-in" style="transition-delay: 0.2s;">
+    <!-- Manage Students -->
+    <div class="col-12 mb-4">
+        <div class="glass-card p-4">
+            <h4 class="mb-3 border-bottom pb-2 text-primary-brand"><i class="fa-solid fa-graduation-cap"></i> Pending Verifications: Action Required</h4>
+            <div class="table-responsive">
+                <table class="table text-light table-borderless align-middle" style="color:var(--text-color) !important;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--glass-border);">
+                            <th>Identity Verified</th>
+                            <th>Institutional Role</th>
+                            <th>Session Sync</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                            <tr style="border-bottom: 1px solid var(--glass-border);">
+                                <td style="color:var(--text-color);">{{ student.user.username }}</td>
+                                <td style="color:var(--text-color);">{{ student.branch }} (Year {{ student.year }})</td>
+                                <td style="color:var(--text-color);">{% if student.user.last_login %}{{ student.user.last_login|date:"M d, Y H:i" }}{% else %}Never{% endif %}</td>
+                                <td>
+                                    {% if student.is_verified %}
+                                        <span class="badge bg-success">Verified</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if not student.is_verified %}
+                                    <form action="{% url 'verify_student' student.id %}" method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <button class="btn btn-sm btn-outline-success">Approve</button>
+                                    </form>
+                                    <form action="{% url 'reject_student' student.id %}" method="post" class="d-inline ms-1" onsubmit="return confirm('Prune Database: Remove Unverified Requests?');">
+                                        {% csrf_token %}
+                                        <button class="btn btn-sm text-white" style="background-color: var(--coral-color);" title="Prune Database: Remove Unverified Requests">Reject</button>
+                                    </form>
+                                    {% else %}
+                                    <span class="text-muted small">Approved</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Manage Alumni -->
+    <div class="col-12 mb-4">
+        <div class="glass-card p-4">
+            <h4 class="mb-3 border-bottom pb-2 text-teal"><i class="fa-solid fa-user-check"></i> Pending Verifications: Action Required</h4>
+            <div class="table-responsive">
+                <table class="table text-light table-borderless align-middle" style="color:var(--text-color) !important;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--glass-border);">
+                            <th>Identity Verified</th>
+                            <th>Institutional Role</th>
+                            <th>Session Sync</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for alumni in alumnis %}
+                            <tr style="border-bottom: 1px solid var(--glass-border);">
+                                <td style="color:var(--text-color);">{{ alumni.user.username }}</td>
+                                <td style="color:var(--text-color);">{{ alumni.company }} ({{ alumni.role }})</td>
+                                <td style="color:var(--text-color);">{% if alumni.user.last_login %}{{ alumni.user.last_login|date:"M d, Y H:i" }}{% else %}Never{% endif %}</td>
+                                <td>
+                                    {% if alumni.is_verified %}
+                                        <span class="badge bg-success">Verified</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if not alumni.is_verified %}
+                                    <form action="{% url 'verify_alumni' alumni.id %}" method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <button class="btn btn-sm btn-outline-success">Approve</button>
+                                    </form>
+                                    <form action="{% url 'reject_alumni' alumni.id %}" method="post" class="d-inline ms-1" onsubmit="return confirm('Prune Database: Remove Unverified Requests?');">
+                                        {% csrf_token %}
+                                        <button class="btn btn-sm text-white" style="background-color: var(--coral-color);" title="Prune Database: Remove Unverified Requests">Reject</button>
+                                    </form>
+                                    {% else %}
+                                    <span class="text-muted small">Approved</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <p class="text-muted small mt-2">Note: To create announcements and events, use the <a href="/admin" class="text-primary">Django Built-in Admin Panel</a>.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

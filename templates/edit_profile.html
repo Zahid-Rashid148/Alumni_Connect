@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper fade-in">
+    <div class="glass-card p-5 tilt-effect" style="max-width: 600px; width: 100%;">
+        <div class="text-center mb-4">
+            <i class="fa-solid fa-user-pen text-primary mb-3" style="font-size: 3rem;"></i>
+            <h3>Edit Your Profile</h3>
+            <p class="text-muted">Update your details to maintain an accurate profile.</p>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data" autocomplete="off">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3 text-start">
+                    <label class="form-label fw-bold">{{ field.label }}</label>
+                    <div style="color:var(--text-color);">
+                        {{ field }}
+                    </div>
+                    {% if field.help_text %}
+                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            <div class="d-grid gap-2 mt-4 text-center">
+                <button type="submit" class="btn btn-3d btn-lg btn-primary" style="max-width: 250px; margin: 0 auto;">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+/* Auto-style the django forms inside the wrapper */
+.auth-wrapper input, .auth-wrapper textarea, .auth-wrapper select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    background: var(--glass-bg);
+    color: var(--text-color);
+}
+.auth-wrapper input:focus, .auth-wrapper textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+}
+</style>
+{% endblock %}

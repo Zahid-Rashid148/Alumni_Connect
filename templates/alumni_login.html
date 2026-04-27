@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Alumni Login{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper fade-in">
+    <div class="glass-card p-5 tilt-effect" style="max-width: 450px; width: 100%; border-top: 4px solid #198754;">
+        <div class="text-center mb-4">
+            <i class="fa-solid fa-briefcase text-success mb-3" style="font-size: 3rem;"></i>
+            <h3>Alumni Portal</h3>
+            <p class="text-muted">Welcome back! Please enter your details.</p>
+        </div>
+        
+        <form method="post" autocomplete="off">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3 text-start">
+                    <label class="form-label fw-bold">{{ field.label }}</label>
+                    {{ field }}
+                    {% for error in field.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-success btn-3d btn-lg" style="background: linear-gradient(135deg, #198754, #146c43); box-shadow: 0 4px 6px var(--shadow-color), 0 8px 0 #0f5132;">Login as Alumni</button>
+            </div>
+        </form>
+        
+        <div class="text-center mt-4">
+            <a href="{% url 'login' %}" class="text-muted small"><i class="fa-solid fa-arrow-left"></i> Back to Portals</a>
+        </div>
+    </div>
+</div>
+
+<style>
+.auth-wrapper input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    background: var(--glass-bg);
+    color: var(--text-color);
+}
+.auth-wrapper input:focus {
+    outline: none;
+    border-color: #198754;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+}
+</style>
+{% endblock %}

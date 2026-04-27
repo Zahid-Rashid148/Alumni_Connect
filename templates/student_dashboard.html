@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<div class="row fade-in">
+    <div class="col-md-4 mb-4">
+        <!-- Student Profile Card -->
+        <div class="glass-card p-4 text-center hover-3d h-100 tilt-effect">
+            <div class="hover-3d-inner">
+                <i class="fa-solid fa-user-graduate text-primary mb-3" style="font-size: 4rem;"></i>
+                <h3 class="fw-bold">{{ user.first_name|default:user.username }}</h3>
+                <p class="text-muted mb-1 badge bg-primary">Student Account</p>
+                {% if user.student_profile %}
+                    <p class="mb-1"><strong>Branch:</strong> {{ user.student_profile.branch }}</p>
+                    <p class="mb-1"><strong>Year:</strong> {{ user.student_profile.year }}</p>
+                    <p class="mb-1"><strong>Interests:</strong> {{ user.student_profile.interests }}</p>
+                {% else %}
+                    <p class="text-danger small">Profile incomplete. Edit your profile to get the best experience.</p>
+                {% endif %}
+                <a href="{% url 'edit_profile' %}" class="btn btn-sm btn-primary-brand mt-3"><i class="fa-solid fa-pen"></i> Edit My Journey</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8 mb-4">
+        <!-- Announcements / Posts -->
+        <div class="glass-card p-4 h-100">
+            <h4 class="mb-3 border-bottom pb-2"><i class="fa-solid fa-bullhorn text-primary"></i> Latest Opportunities</h4>
+            {% if posts %}
+                <div class="row">
+                {% for post in posts|slice:":4" %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-light border-0 shadow-sm h-100 hover-3d tilt-effect" style="border-radius: 12px;">
+                            <div class="card-body hover-3d-inner">
+                                <span class="badge bg-secondary mb-2">{{ post.post_type }}</span>
+                                <h5 class="card-title fw-bold text-dark">{{ post.title }}</h5>
+                                <p class="card-text text-muted small">{{ post.content|truncatechars:80 }}</p>
+                                <p class="card-text"><small class="text-muted">By {{ post.author.username }}</small></p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">No recent posts available.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row fade-in" style="transition-delay: 0.2s;">
+    <div class="col-12 mb-4">
+        <!-- Verified Alumni -->
+        <div class="glass-card p-4">
+            <h4 class="mb-3 border-bottom pb-2"><i class="fa-solid fa-users text-primary-brand"></i> Find Your Mentor</h4>
+            <p class="text-muted small">Browse verified alumni by company, industry, or graduation year. Your next career move starts with a simple request.</p>
+            <div class="row">
+                {% for alumni in alumni_list %}
+                    <div class="col-md-4 mb-3">
+                        <div class="glass-card p-3 border border-secondary text-center">
+                            {% if alumni.profile_picture %}
+                                <img src="{{ alumni.profile_picture.url }}" class="rounded-circle shadow-sm mb-3" style="width:80px; height:80px; object-fit:cover; border: 3px solid var(--primary-color);">
+                            {% else %}
+                                <div class="avatar-circle shadow-sm mb-3 mx-auto" style="width:80px; height:80px; font-size:2rem;">{{ alumni.user.username|make_list|first }}</div>
+                            {% endif %}
+                            <h5>{{ alumni.user.username }}</h5>
+                            <p class="mb-1 small"><strong>Dept:</strong> {{ alumni.department }}</p>
+                            <p class="mb-1 small"><strong>Company:</strong> <span class="text-teal fw-bold">{{ alumni.company }}</span> ({{ alumni.role }})</p>
+                            <p class="text-muted mt-2" style="font-size: 0.75rem;">Ask for a resume review or a referral to their current organization.</p>
+                            <a href="{% url 'send_request' alumni.user.id %}" class="btn btn-sm btn-connect mt-2">Send Mentorship Request</a>
+                            <a href="{% url 'chat_thread' alumni.user.username %}" class="btn btn-sm btn-primary-brand mt-2"><i class="fa-solid fa-comment"></i> Chat</a>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-muted col-12">No verified alumni found just yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row fade-in" style="transition-delay: 0.4s;">
+    <div class="col-md-6 mb-4">
+        <div class="glass-card p-4 h-100">
+            <h4 class="mb-3 border-bottom pb-2"><i class="fa-solid fa-paper-plane text-primary"></i> My Requests</h4>
+            <ul class="list-group list-group-flush bg-transparent">
+                {% for req in sent_requests %}
+                    <li class="list-group-item bg-transparent text-light border-secondary d-flex justify-content-between align-items-center">
+                        <span style="color:var(--text-color);">Req to {{ req.alumni.username }}</span>
+                        {% if req.status == 'Pending' %}
+                            <span class="badge bg-warning text-dark">Pending Approval</span>
+                        {% elif req.status == 'Accepted' %}
+                            <span class="badge bg-success">Active Connection</span>
+                        {% else %}
+                            <span class="badge bg-danger">{{ req.status }}</span>
+                        {% endif %}
+                    </li>
+                {% empty %}
+                    <li class="list-group-item bg-transparent" style="color:var(--text-color);">No requests sent.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="glass-card p-4 h-100">
+            <h4 class="mb-3 border-bottom pb-2"><i class="fa-solid fa-calendar-check text-primary"></i> Events</h4>
+            <ul class="list-group list-group-flush bg-transparent">
+                {% for event in events %}
+                    <li class="list-group-item bg-transparent border-secondary ps-0" style="color:var(--text-color);">
+                        <strong>{{ event.title }}</strong><br>
+                        <small class="text-muted">{{ event.date|date:"M d, Y H:i" }} | {{ event.location }}</small>
+                    </li>
+                {% empty %}
+                    <p class="text-muted">No upcoming events.</p>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

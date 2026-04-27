@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Chat with {{ target_user.username }}{% endblock %}
+
+{% block content %}
+<div class="row fade-in">
+    <div class="col-md-8 mx-auto">
+        <div class="glass-card p-0" style="overflow:hidden; display:flex; flex-direction:column; height: 75vh;">
+            
+            <!-- Chat Header -->
+            <div class="p-3 border-bottom d-flex align-items-center" style="background: rgba(var(--primary-color-rgb), 0.1); border-color: var(--glass-border) !important;">
+                <a href="{% url 'chat_inbox' %}" class="btn btn-sm btn-outline-secondary me-3"><i class="fa-solid fa-arrow-left"></i></a>
+                <i class="fa-solid fa-user-circle fa-2x text-primary"></i>
+                <div class="ms-2">
+                    <h5 class="mb-0 fw-bold">{{ target_user.username }}</h5>
+                    <small class="text-muted">
+                        {% if target_user.is_student %}Student{% elif target_user.is_alumni %}Alumni{% endif %}
+                    </small>
+                </div>
+            </div>
+            
+            <!-- Chat Messages -->
+            <div id="chatBox" class="p-4" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap: 10px;">
+                {% for msg in chat_messages %}
+                    {% if msg.sender == user %}
+                        <!-- Sent Message -->
+                        <div class="align-self-end text-white p-2 px-3" style="max-width: 75%; background: var(--primary-color); border-radius: 15px 15px 0 15px;">
+                            <p class="mb-0">{{ msg.content }}</p>
+                            <small class="text-white-50" style="font-size:0.7em;">{{ msg.timestamp|date:"M d, H:i" }}</small>
+                        </div>
+                    {% else %}
+                        <!-- Received Message -->
+                        <div class="align-self-start p-2 px-3" style="max-width: 75%; background: rgba(128,128,128,0.2); border-radius: 15px 15px 15px 0; color:var(--text-color);">
+                            <p class="mb-0">{{ msg.content }}</p>
+                            <small class="text-muted" style="font-size:0.7em;">{{ msg.timestamp|date:"M d, H:i" }}</small>
+                        </div>
+                    {% endif %}
+                {% empty %}
+                    <div class="text-center text-muted mt-5">
+                        <p>No messages yet. Send a message to start the conversation!</p>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Chat Input form -->
+            <div class="p-3 border-top" style="border-color: var(--glass-border) !important; background: var(--glass-bg);">
+                <form method="post" autocomplete="off" class="d-flex">
+                    {% csrf_token %}
+                    <input type="text" name="content" class="form-control me-2" placeholder="Type a professional message..." required style="border-radius:20px; background:transparent; color:var(--text-color); border:1px solid var(--glass-border);">
+                    <button type="submit" class="btn btn-primary rounded-circle" style="width:40px; height:40px; display:flex; align-items:center; justify-content:center;">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto scroll chat to bottom upon load
+    const chatBox = document.getElementById("chatBox");
+    chatBox.scrollTop = chatBox.scrollHeight;
+</script>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Choose Login Portal{% endblock %}
+
+{% block content %}
+<div class="text-center fade-in mb-5 mt-4">
+    <h1 class="display-5 fw-bold">Select Your Portal</h1>
+    <p class="text-muted">Choose your appropriate login portal to access your dashboard.</p>
+</div>
+
+<div class="row fade-in" style="transition-delay: 0.1s; max-width: 900px; margin: 0 auto;">
+    <!-- Student Portal -->
+    <div class="col-md-4 mb-4">
+        <a href="{% url 'student_login' %}" class="text-decoration-none">
+            <div class="glass-card p-5 text-center hover-3d h-100 tilt-effect pb-4">
+                <div class="hover-3d-inner">
+                    <i class="fa-solid fa-graduation-cap text-primary mb-3" style="font-size: 4rem;"></i>
+                    <h3 class="fw-bold text-dark">Student</h3>
+                    <p class="text-muted small">Login to connect with alumni and find opportunities.</p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Alumni Portal -->
+    <div class="col-md-4 mb-4">
+        <a href="{% url 'alumni_login' %}" class="text-decoration-none">
+            <div class="glass-card p-5 text-center hover-3d h-100 tilt-effect pb-4">
+                <div class="hover-3d-inner">
+                    <i class="fa-solid fa-briefcase text-success mb-3" style="font-size: 4rem;"></i>
+                    <h3 class="fw-bold text-dark">Alumni</h3>
+                    <p class="text-muted small">Login to mentor students and post career opportunities.</p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Admin Portal -->
+    <div class="col-md-4 mb-4">
+        <a href="{% url 'admin_login' %}" class="text-decoration-none">
+            <div class="glass-card p-5 text-center hover-3d h-100 tilt-effect pb-4">
+                <div class="hover-3d-inner">
+                    <i class="fa-solid fa-shield-halved text-danger mb-3" style="font-size: 4rem;"></i>
+                    <h3 class="fw-bold text-dark">Admin</h3>
+                    <p class="text-muted small">Login to manage users, events, and verifications.</p>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}

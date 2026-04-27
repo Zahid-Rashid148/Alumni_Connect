@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper fade-in">
+    <div class="glass-card p-5 tilt-effect" style="max-width: 500px; width: 100%;">
+        <div class="text-center mb-4">
+            <i class="fa-solid fa-user-plus text-primary mb-3" style="font-size: 3rem;"></i>
+            <h3>Create an Account</h3>
+            <p class="text-muted">Join the Alumni Connect platform today.</p>
+        </div>
+        
+        <form method="post" autocomplete="off">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3 text-start">
+                    <label class="form-label fw-bold">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-3d btn-lg">Register</button>
+            </div>
+        </form>
+        
+        <div class="text-center mt-4">
+            <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Auto-style the django forms inside the auth wrapper */
+.auth-wrapper input:not([type='radio']), .auth-wrapper select {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    background: var(--glass-bg);
+    color: var(--text-color);
+}
+.auth-wrapper input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+.auth-wrapper ul {
+    list-style: none;
+    padding-left: 0;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumni Connect - {% block title %}Welcome{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div id="scroll-progress"></div>
+    <div class="bg-shape-1"></div>
+    <div class="bg-shape-2"></div>
+
+    <!-- Animated Navbar -->
+    <nav class="navbar navbar-expand-lg modern-navbar sticky-top tilt-effect">
+        <div class="container tilt-inner">
+            <a class="navbar-brand fw-bold " href="{% url 'home' %}">
+                <i class="fa-solid fa-graduation-cap text-primary-brand"></i> <span class="text-primary-brand">Alumni Connect</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active-pill{% endif %}" href="{% url 'home' %}">Home</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                        {% if user.is_student %}
+                        <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'student_dashboard' %}active-pill{% endif %}" href="{% url 'student_dashboard' %}">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'chat_inbox' %}active-pill{% endif %}" href="{% url 'chat_inbox' %}"><i class="fa-solid fa-envelope"></i> Inbox</a></li>
+                        {% elif user.is_alumni %}
+                        <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'alumni_dashboard' %}active-pill{% endif %}" href="{% url 'alumni_dashboard' %}">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'chat_inbox' %}active-pill{% endif %}" href="{% url 'chat_inbox' %}"><i class="fa-solid fa-envelope"></i> Inbox</a></li>
+                        {% elif user.is_superuser %}
+                        <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active-pill{% endif %}" href="{% url 'admin_dashboard' %}">Admin Dashboard</a></li>
+                        {% endif %}
+                        <li class="nav-item ms-3 border-start ps-3 border-secondary d-flex align-items-center gap-2">
+                            <span class="text-dark small">Welcome,</span>
+                            <div class="avatar-circle" title="{{ user.username }}" style="overflow: hidden;">
+                                {% if user.is_student and user.student_profile.profile_picture %}
+                                    <img src="{{ user.student_profile.profile_picture.url }}" alt="{{ user.username }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                {% elif user.is_alumni and user.alumni_profile.profile_picture %}
+                                    <img src="{{ user.alumni_profile.profile_picture.url }}" alt="{{ user.username }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                {% else %}
+                                    {{ user.username|make_list|first }}
+                                {% endif %}
+                            </div>
+                        </li>
+                        <li class="nav-item ms-3">
+                            <form action="{% url 'logout' %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 20px;">Logout</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'login' %}active-pill{% endif %}" href="{% url 'login' %}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-sm btn-primary-brand px-4 fw-bold ms-2" href="{% url 'register' %}" style="border-radius:30px; box-shadow: 0 4px 10px rgba(83,74,183,0.3);">Register</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}
+        {% endblock content %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 mt-5 glass-card mx-3 mb-3">
+        <p class="mb-0 text-muted">&copy; 2026 Alumni Connect UI Project. Simple & Beginner Friendly.</p>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

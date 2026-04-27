@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Alumni Dashboard{% endblock %}
+
+{% block content %}
+<div class="row fade-in">
+    <div class="col-md-4 mb-4">
+        <!-- Profile Card -->
+        <div class="glass-card p-4 text-center hover-3d h-100 tilt-effect">
+            <div class="hover-3d-inner">
+                <i class="fa-solid fa-briefcase text-primary mb-3" style="font-size: 4rem;"></i>
+                <h3 class="fw-bold">{{ user.first_name|default:user.username }}</h3>
+                <p class="text-muted mb-1 badge bg-secondary">Alumni Account</p>
+                {% if user.alumni_profile %}
+                    {% if user.alumni_profile.is_verified %}
+                        <p class="text-teal small fw-bold"><i class="fa-solid fa-check-circle"></i> Verified Professional Account</p>
+                    {% else %}
+                        <p class="text-warning small fw-bold"><i class="fa-solid fa-clock"></i> Pending Verification by Admin</p>
+                    {% endif %}
+                    <p class="mb-1 mt-2"><strong>Company:</strong> {{ user.alumni_profile.company }}</p>
+                    <p class="mb-1"><strong>Role:</strong> {{ user.alumni_profile.role }}</p>
+                    <p class="mb-1"><strong>Skills:</strong> {{ user.alumni_profile.skills }}</p>
+                {% else %}
+                    <p class="text-danger small mt-2">Profile incomplete. Please set up your professional profile.</p>
+                {% endif %}
+                <a href="{% url 'edit_profile' %}" class="btn btn-sm btn-primary-brand mt-3"><i class="fa-solid fa-pen"></i> Edit My Journey</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8 mb-4">
+        <!-- Mentorship Requests -->
+        <div class="glass-card p-4 h-100">
+            <h4 class="mb-3 border-bottom pb-2"><i class="fa-solid fa-users text-primary-brand"></i> Manage Mentorship Requests</h4>
+            <p class="text-muted small">Review incoming student profiles. Accept requests to open a direct, secure communication channel.</p>
+            {% if received_requests %}
+                <div class="table-responsive">
+                    <table class="table text-light table-borderless align-middle" style="color:var(--text-color) !important;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--glass-border);">
+                                <th>Student</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for req in received_requests %}
+                            <tr style="border-bottom: 1px solid var(--glass-border);">
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        {% if req.student.student_profile.profile_picture %}
+                                            <img src="{{ req.student.student_profile.profile_picture.url }}" class="rounded-circle shadow-sm" style="width:40px; height:40px; object-fit:cover; border: 2px solid var(--primary-color);">
+                                        {% else %}
+                                            <div class="avatar-circle shadow-sm" style="width:40px; height:40px; font-size:1.2rem;">{{ req.student.username|make_list|first }}</div>
+                                        {% endif %}
+                                        <div>
+                                            <span style="color:var(--text-color); font-weight: bold;">{{ req.student.username }}</span><br>
+                                            <small class="text-muted">{{ req.student.student_profile.branch }}</small>
+                                            {% if req.student.student_profile.resume %}
+                                                <br><a href="{{ req.student.student_profile.resume.url }}" target="_blank" class="badge bg-primary-brand text-decoration-none mt-1"><i class="fa-solid fa-file-pdf"></i> Resume</a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if req.status == 'Pending' %}
+                                        <span class="badge bg-warning text-dark">{{ req.status }}</span>
+                                    {% elif req.status == 'Accepted' %}
+                                        <span class="badge bg-success">{{ req.status }}</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">{{ req.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if req.status == 'Pending' %}
+                                        <a href="{% url 'handle_request' req.id 'accept' %}" class="btn btn-sm btn-connect text-white"><i class="fa-solid fa-check"></i> Confirm Connection</a>
+                                        <a href="{% url 'handle_request' req.id 'reject' %}" class="btn btn-sm text-white" style="background-color: var(--coral-color);"><i class="fa-solid fa-times"></i> Decline Request</a>
+                                    {% elif req.status == 'Accepted' %}
+                                        <a href="{% url 'chat_thread' req.student.username %}" class="btn btn-sm btn-primary text-white"><i class="fa-solid fa-comment"></i> Chat</a>
+                                    {% else %}
+                                        <span class="text-muted small">Rejected</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">No requests received yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row fade-in" style="transition-delay: 0.2s;">
+    <div class="col-md-6 mb-4">
+        <div class="glass-card p-4 h-100">
+            <h4 class="mb-3 border-bottom pb-2"><i class="fa-solid fa-pen-to-square text-primary-brand"></i> Share an Opportunity</h4>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Title</label>
+                    <input type="text" name="{{ post_form.title.name }}" class="form-control bg-transparent border-secondary" style="color:var(--text-dark);" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Content</label>
+                    <textarea name="{{ post_form.content.name }}" class="form-control bg-transparent border-secondary" rows="3" placeholder="Post an internship, job opening, or a quick career tip for the student body..." style="color:var(--text-dark);" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Type</label>
+                    <select name="{{ post_form.post_type.name }}" class="form-select bg-transparent border-secondary text-dark" required>
+                        <option value="Job">Job</option>
+                        <option value="Internship">Internship</option>
+                        <option value="Tip">Career Tip</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-3d btn-sm px-4">Post</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="glass-card p-4 h-100">
+            <h4 class="mb-3 border-bottom pb-2"><i class="fa-solid fa-list text-primary"></i> My Posts</h4>
+            {% if my_posts %}
+                <ul class="list-group list-group-flush bg-transparent">
+                    {% for p in my_posts|slice:":3" %}
+                        <li class="list-group-item bg-transparent border-secondary ps-0" style="color:var(--text-color);">
+                            <span class="badge bg-secondary float-end">{{ p.post_type }}</span>
+                            <strong>{{ p.title }}</strong><br>
+                            <small class="text-muted">{{ p.created_at|date:"M d, Y" }}</small>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted">You haven't posted anything yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
